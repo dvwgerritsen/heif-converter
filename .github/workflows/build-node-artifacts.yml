@@ -6,6 +6,9 @@ on:
     paths:
       - 'src/lib.cc'
       - '.github/workflows/build-node-artifacts.yml'
+  push:
+    branches:
+      - :main
 
 jobs:
   build:

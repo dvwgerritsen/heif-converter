@@ -2,11 +2,10 @@ name: Build Node.js Artifact
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize]
+    types: [ opened, reopened, synchronize ]
     paths:
       - 'src/lib.cc'
       - '.github/workflows/build-node-artifacts.yml'
-      - '**/npm/**/Dockerfile'
 
 jobs:
   build:
@@ -26,65 +25,66 @@ jobs:
             platform: win32-ia32
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Create a folder for the tarball
-      run: mkdir -p release/${{ matrix.PLATFORM }}/lib
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
 
-    - name: Configure and Build projects (Linux)
-      if: contains(matrix.os, 'ubuntu')
-      run: |
-        # Build image
-        docker build -t ${{ matrix.PLATFORM }} . -f ./npm/${{ matrix.PLATFORM }}/Dockerfile
+      - name: Create a folder for the tarball
+        run: mkdir -p release/${{ matrix.PLATFORM }}/lib
 
-        # Run container
-        docker run --name ${{ matrix.PLATFORM }} ${{ matrix.PLATFORM }}
+      - name: Configure and Build projects (Linux)
+        if: contains(matrix.os, 'ubuntu')
+        run: |
+          # Build image
+          docker build -t ${{ matrix.PLATFORM }} . -f ./npm/${{ matrix.PLATFORM }}/Dockerfile
+          
+          # Run container
+          docker run --name ${{ matrix.PLATFORM }} ${{ matrix.PLATFORM }}
 
-    - name: Copy .node file from docker container (Linux)
-      if: contains(matrix.os, 'ubuntu')
-      env: 
-        source: ${{ matrix.PLATFORM }}:/heif-converter/src/build/Release
-        destination: ./release/${{ matrix.PLATFORM }}/lib
-      run: docker cp $source/converter.node $destination/converter.${{ matrix.PLATFORM }}.node
+      - name: Copy .node file from docker container (Linux)
+        if: contains(matrix.os, 'ubuntu')
+        env:
+          source: ${{ matrix.PLATFORM }}:/heif-converter/src/build/Release
+          destination: ./release/${{ matrix.PLATFORM }}/lib
+        run: docker cp $source/converter.node $destination/converter.${{ matrix.PLATFORM }}.node
 
-    - name: Configure and Build projects (Windows & OSX)
-      if: "!contains(matrix.os, 'ubuntu')"
-      run: |
-        # Build project
-        npm install --omit-optional
-        npm run configure
-        npm run build
+      - name: Configure and Build projects (Windows & OSX)
+        if: "!contains(matrix.os, 'ubuntu')"
+        run: |
+          # Build project
+          npm install --omit-optional
+          npm run configure
+          npm run build
+          
+          # Copy .node in the release folder
+          cp ./src/build/Release/converter.node ./release/${{ matrix.PLATFORM }}/lib/converter.${{ matrix.PLATFORM }}.node
 
-        # Copy .node in the release folder
-        cp ./src/build/Release/converter.node ./release/${{ matrix.PLATFORM }}/lib/converter.${{ matrix.PLATFORM }}.node
+      - name: Copy .dll files for artifacts and tests (Windows)
+        if: contains(matrix.os, 'windows')
+        run: |
+          # Copy for artifact
+          cp platform/${{ matrix.PLATFORM }}/bin/heif.dll ./release/${{ matrix.PLATFORM }}/lib/heif.dll
+          cp platform/${{ matrix.PLATFORM }}/bin/turbojpeg.dll ./release/${{ matrix.PLATFORM }}/lib/turbojpeg.dll
+          cp platform/${{ matrix.PLATFORM }}/bin/libde265.dll ./release/${{ matrix.PLATFORM }}/lib/libde265.dll
+          cp platform/${{ matrix.PLATFORM }}/bin/libx265.dll ./release/${{ matrix.PLATFORM }}/lib/libx265.dll
+          cp platform/${{ matrix.PLATFORM }}/bin/libpng16.dll ./release/${{ matrix.PLATFORM }}/lib/libpng16.dll
+          cp platform/${{ matrix.PLATFORM }}/bin/zlib1.dll ./release/${{ matrix.PLATFORM }}/lib/zlib1.dll
 
-    - name: Copy .dll files for artifacts and tests (Windows)
-      if: contains(matrix.os, 'windows')
-      run: |
-        # Copy for artifact
-        cp platform/${{ matrix.PLATFORM }}/bin/heif.dll ./release/${{ matrix.PLATFORM }}/lib/heif.dll
-        cp platform/${{ matrix.PLATFORM }}/bin/turbojpeg.dll ./release/${{ matrix.PLATFORM }}/lib/turbojpeg.dll
-        cp platform/${{ matrix.PLATFORM }}/bin/libde265.dll ./release/${{ matrix.PLATFORM }}/lib/libde265.dll
-        cp platform/${{ matrix.PLATFORM }}/bin/libx265.dll ./release/${{ matrix.PLATFORM }}/lib/libx265.dll
-        cp platform/${{ matrix.PLATFORM }}/bin/libpng16.dll ./release/${{ matrix.PLATFORM }}/lib/libpng16.dll
+      - name: Run tests
+        if: "!contains(matrix.os, 'ubuntu')"
+        run: npm run test
 
-    - name: Run tests
-      if: "!contains(matrix.os, 'ubuntu')"
-      run: npm run test
+      - name: Create tarball of the release folder
+        run: |
+          cd ./release
+          tar -czf ${{ matrix.platform }}.tar.gz *
 
-    - name: Create tarball of the release folder
-      run: |
-        cd ./release
-        tar -czf ${{ matrix.platform }}.tar.gz *
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: release
-        path: ./release/${{ matrix.platform }}.tar.gz
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: release
+          path: ./release/${{ matrix.platform }}.tar.gz

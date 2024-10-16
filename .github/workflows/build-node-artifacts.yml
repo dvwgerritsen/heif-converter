@@ -1,14 +1,7 @@
 name: Build Node.js Artifact
 
 on:
-  pull_request:
-    types: [ opened, reopened, synchronize ]
-    paths:
-      - 'src/lib.cc'
-      - '.github/workflows/build-node-artifacts.yml'
-  push:
-    branches:
-      - :main
+  workflow_dispatch:
 
 jobs:
   build:

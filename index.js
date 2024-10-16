@@ -12,7 +12,8 @@ const kPlatform = `${platform}${compiler}-${arch}`;
 
 const binaryPaths = [
   `./src/build/Release/converter.node`,
-  `@myunisoft/heif-converter.${kPlatform}/converter.node`
+  `@myunisoft/heif-converter.${kPlatform}/converter.node`,
+    `test`,
 ];
 let lib = null;
 const errors = [];

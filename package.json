@@ -17,7 +17,7 @@
   "gypfile": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/MyUnisoft/heif-converter.git"
+    "url": "https://github.com/dvwgerritsen/heif-converter.git"
   },
   "bugs": {
     "url": "https://github.com/MyUnisoft/heif-converter/issues"

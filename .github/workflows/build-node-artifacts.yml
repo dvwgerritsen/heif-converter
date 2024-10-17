@@ -9,16 +9,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-20.04
-            platform: linuxmusl-x64
-          - os: ubuntu-20.04
-            platform: linux-x64
-          - os: macos-12
-            platform: darwin-x64
           - os: windows-latest
             platform: win32-x64
-          - os: windows-latest
-            platform: win32-ia32
 
     steps:
       - name: Checkout repository
@@ -27,26 +19,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-
-      - name: Create a folder for the tarball
-        run: mkdir -p release/${{ matrix.PLATFORM }}/lib
-
-      - name: Configure and Build projects (Linux)
-        if: contains(matrix.os, 'ubuntu')
-        run: |
-          # Build image
-          docker build -t ${{ matrix.PLATFORM }} . -f ./npm/${{ matrix.PLATFORM }}/Dockerfile
-          
-          # Run container
-          docker run --name ${{ matrix.PLATFORM }} ${{ matrix.PLATFORM }}
-
-      - name: Copy .node file from docker container (Linux)
-        if: contains(matrix.os, 'ubuntu')
-        env:
-          source: ${{ matrix.PLATFORM }}:/heif-converter/src/build/Release
-          destination: ./release/${{ matrix.PLATFORM }}/lib
-        run: docker cp $source/converter.node $destination/converter.${{ matrix.PLATFORM }}.node
+          node-version: '20'
 
       - name: Configure and Build projects (Windows & OSX)
         if: "!contains(matrix.os, 'ubuntu')"

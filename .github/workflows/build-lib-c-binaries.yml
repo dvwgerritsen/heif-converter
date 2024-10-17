@@ -9,18 +9,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-22.04
-            platform: linuxmusl-x64
-            arch: x64
-          - os: ubuntu-22.04
-            platform: linux-x64
-            arch: x64
           - os: windows-latest
             platform: win32-x64
             arch: x64
-          - os: windows-latest
-            platform: win32-ia32
-            arch: x86
 
     steps:
       - name: Checkout repository
@@ -67,26 +58,6 @@ jobs:
           docker cp $env:source/include/pngconf.h $env:destination/include/pngconf.h
           docker cp $env:source/include/pnglibconf.h $env:destination/include/pnglibconf.h
           docker cp $env:source/include/turbojpeg.h $env:destination/include/turbojpeg.h
-
-      - name: Copy binary and include files (Linux)
-        if: contains(matrix.os, 'ubuntu')
-        env:
-          source: ${{ matrix.PLATFORM }}:/vcpkg/installed/${{ matrix.ARCH }}-linux
-          destination: binaries/${{ matrix.PLATFORM }}
-        run : |
-          # Copy lib files
-          docker cp $source/lib/libheif.a $destination/lib/libheif.a
-          docker cp $source/lib/libturbojpeg.a $destination/lib/libturbojpeg.a
-          docker cp $source/lib/libpng16.a $destination/lib/libpng16.a
-          docker cp $source/lib/libde265.a $destination/lib/libde265.a
-          docker cp $source/lib/libx265.a $destination/lib/libx265.a
-          
-          # Copy includes files
-          docker cp $source/include/libheif $destination/include/libheif
-          docker cp $source/include/png.h $destination/include/png.h
-          docker cp $source/include/pngconf.h $destination/include/pngconf.h
-          docker cp $source/include/pnglibconf.h $destination/include/pnglibconf.h
-          docker cp $source/include/turbojpeg.h $destination/include/turbojpeg.h
 
       - name: Create tarball of the binaries folder
         run: |

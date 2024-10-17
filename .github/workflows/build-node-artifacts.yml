@@ -17,8 +17,6 @@ jobs:
             platform: darwin-x64
           - os: windows-latest
             platform: win32-x64
-          - os: windows-latest
-            platform: win32-ia32
 
     steps:
     - name: Checkout repository

@@ -55,7 +55,7 @@
     "@myunisoft/heif-converter.linux-x64": "^0.1.6",
     "@myunisoft/heif-converter.linuxmusl-x64": "^0.2.4",
     "@myunisoft/heif-converter.win32-ia32": "^0.0.4",
-    "@myunisoft/heif-converter.win32-x64": "https://github.com/dvwgerritsen/heif-converter/releases/download/1.0.0/win32-x64.tar.gz"
+    "@myunisoft/heif-converter.win32-x64": "^0.1.3"
   },
   "dependencies": {
     "detect-libc": "^2.0.3"

@@ -67,9 +67,6 @@ jobs:
         cp platform/${{ matrix.PLATFORM }}/bin/libx265.dll ./release/${{ matrix.PLATFORM }}/lib/libx265.dll
         cp platform/${{ matrix.PLATFORM }}/bin/libpng16.dll ./release/${{ matrix.PLATFORM }}/lib/libpng16.dll
         cp platform/${{ matrix.PLATFORM }}/bin/zlib1.dll ./release/${{ matrix.PLATFORM }}/lib/zlib1.dll
-
-    - name: Include NPM data
-      run:
         cp -r npm/${{ matrix.PLATFORM }}/* ./${{ matrix.PLATFORM }}/release/lib/
 
     - name: Run tests
